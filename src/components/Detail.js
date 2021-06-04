@@ -1,11 +1,11 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import styled from "styled-components";
+import { useParams } from "react-router";
 
-import imageBackground from "../images/star-wars-bad-2.jpg";
-import imageLogo from "../images/icon-star-wars-bad.png";
 import playIconBlack from "../images/play-icon-black.png";
 import playIconWhite from "../images/play-icon-white.png";
 import watchButton from "../images/group-icon.png";
+import db from "./../firebase";
 
 const Container = styled.div`
   min-height: calc(100vh-70px);
@@ -119,39 +119,54 @@ const Description = styled.div`
   color: rgb(249, 249, 249);
   font-size: 20px;
   margin-top: 16px;
+  line-height: 1.5rem;
 `;
 
 const Details = () => {
+  const { id } = useParams();
+  const [movie, setMovie] = useState();
+
+  useEffect(() => {
+    db.collection("movies")
+      .doc(id)
+      .get()
+      .then((doc) => {
+        if (doc.exists) {
+          setMovie(doc.data());
+        }
+      });
+  }, []);
+
   return (
     <Container>
-      <Background>
-        <img alt="star-wars" src={imageBackground} />
-      </Background>
-      <ImageTitle>
-        <img alt="logo-star-wars-bad" src={imageLogo}></img>
-      </ImageTitle>
-      <Controls>
-        <PlayButton>
-          <img alt="play-icon" src={playIconBlack}></img>
-          <span>PLAY</span>
-        </PlayButton>
-        <TrailerButton>
-          <img alt="play-icon" src={playIconWhite}></img>
-          <span>TRAILER</span>
-        </TrailerButton>
-        <AddButton>
-          <span>+</span>
-        </AddButton>
-        <GroupWatchButton>
-          <img alt="group-watch" src={watchButton}></img>
-        </GroupWatchButton>
-      </Controls>
-      <SubTitle>
-        2021 • 1 season • Science fiction, Animation, Action and adventure
-      </SubTitle>
-      <Description>
-        The Bad Lot must find its way in a galaxy that is changing very fast.
-      </Description>
+      {movie && (
+        <>
+          <Background>
+            <img alt="star-wars" src={movie.backgroundImg} />
+          </Background>
+          <ImageTitle>
+            <img alt="logo-star-wars-bad" src={movie.titleImg}></img>
+          </ImageTitle>
+          <Controls>
+            <PlayButton>
+              <img alt="play-icon" src={playIconBlack}></img>
+              <span>PLAY</span>
+            </PlayButton>
+            <TrailerButton>
+              <img alt="play-icon" src={playIconWhite}></img>
+              <span>TRAILER</span>
+            </TrailerButton>
+            <AddButton>
+              <span>+</span>
+            </AddButton>
+            <GroupWatchButton>
+              <img alt="group-watch" src={watchButton}></img>
+            </GroupWatchButton>
+          </Controls>
+          <SubTitle>{movie.subTitle}</SubTitle>
+          <Description>{movie.description}</Description>
+        </>
+      )}
     </Container>
   );
 };

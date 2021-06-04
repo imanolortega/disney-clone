@@ -1,5 +1,14 @@
-import React from "react";
+import React, { useEffect } from "react";
 import styled from "styled-components";
+import {
+  selectUserName,
+  selectUserPhoto,
+  setSignOut,
+  setUserLogin,
+} from "../features/user/userSlice";
+import { useDispatch, useSelector } from "react-redux";
+import { auth, provider } from "../firebase";
+import { useHistory } from "react-router";
 
 import logo from "../images/logo.svg";
 import home from "../images/home-icon.svg";
@@ -8,7 +17,6 @@ import watchList from "../images/watchlist-icon.svg";
 import originals from "../images/original-icon.svg";
 import movie from "../images/movie-icon.svg";
 import series from "../images/series-icon.svg";
-import userImage from "../images/user-image.jpg";
 
 const Nav = styled.div`
   height: 70px;
@@ -75,7 +83,71 @@ const UserImg = styled.div`
   }
 `;
 
+const Login = styled.div`
+  border: 1px solid #f9f9f9;
+  padding: 8px 16px;
+  border-radius: 4px;
+  letter-spacing: 1.4px;
+  background-color: rgba(0, 0, 0, 0.6);
+  cursor: pointer;
+  transition: all 0.2s ease 0s;
+
+  &:hover {
+    background-color: #f9f9f9;
+    color: #000;
+    border-color: transparent;
+  }
+`;
+
+const LoginContainer = styled.div`
+  flex: 1;
+  display: flex;
+  justify-content: flex-end;
+`;
+
 const Header = () => {
+  const dispatch = useDispatch();
+  const history = useHistory();
+  const userName = useSelector(selectUserName);
+  const userPhoto = useSelector(selectUserPhoto);
+
+  useEffect(() => {
+    auth.onAuthStateChanged(async (user) => {
+      if (user) {
+        dispatch(
+          setUserLogin({
+            name: user.displayName,
+            email: user.email,
+            photo: user.photoURL,
+          })
+        );
+        history.push("/");
+      }
+    });
+  }, []);
+
+  const signIn = () => {
+    auth.signInWithPopup(provider).then((result) => {
+      let user = result.user;
+      console.log(user);
+      dispatch(
+        setUserLogin({
+          name: user.displayName,
+          email: user.email,
+          photo: user.photoURL,
+        })
+      );
+      history.push("/");
+    });
+  };
+
+  const signOut = () => {
+    auth.signOut().then(() => {
+      dispatch(setSignOut);
+      history.push("/login");
+    });
+  };
+
   return (
     <Nav>
       <Logo>
@@ -83,35 +155,41 @@ const Header = () => {
           <img alt="logo-disney-plus" src={logo}></img>
         </a>
       </Logo>
-      <NavMenu>
-        <a href="/">
-          <img alt="home-icon" src={home}></img>
-          <span>HOME</span>
-        </a>
-        <a href="/">
-          <img alt="search-icon" src={search}></img>
-          <span>SEARCH</span>
-        </a>
-        <a href="/">
-          <img alt="watchlist-icon" src={watchList}></img>
-          <span>WATCHLIST</span>
-        </a>
-        <a href="/">
-          <img alt="originals-icon" src={originals}></img>
-          <span>ORIGINALS</span>
-        </a>
-        <a href="/">
-          <img alt="movie-icon" src={movie}></img>
-          <span>MOVIES</span>
-        </a>
-        <a href="/">
-          <img alt="series-icon" src={series}></img>
-          <span>SERIES</span>
-        </a>
-      </NavMenu>
-      <UserImg>
-        <img alt="user" src={userImage}></img>
-      </UserImg>
+      {!userName ? (
+        <LoginContainer>
+          <Login onClick={signIn}>LOGIN</Login>
+        </LoginContainer>
+      ) : (
+        <>
+          <NavMenu>
+            <a href="/">
+              <img alt="home-icon" src={home}></img>
+              <span>HOME</span>
+            </a>
+            <a href="/">
+              <img alt="search-icon" src={search}></img>
+              <span>SEARCH</span>
+            </a>
+            <a href="/">
+              <img alt="watchlist-icon" src={watchList}></img>
+              <span>WATCHLIST</span>
+            </a>
+            <a href="/">
+              <img alt="originals-icon" src={originals}></img>
+              <span>ORIGINALS</span>
+            </a>
+            <a href="/">
+              <img alt="movie-icon" src={movie}></img>
+              <span>MOVIES</span>
+            </a>
+            <a href="/">
+              <img alt="series-icon" src={series}></img>
+              <span>SERIES</span>
+            </a>
+          </NavMenu>
+          <Login onClick={signOut}>LOGOUT</Login>
+        </>
+      )}
     </Nav>
   );
 };

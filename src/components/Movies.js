@@ -1,7 +1,8 @@
 import React from "react";
 import styled from "styled-components";
-
-import imageOne from "../images/star-wars-bad.jpg";
+import { selectMovies } from "../features/movies/movieSlice";
+import { useSelector } from "react-redux";
+import { Link } from "react-router-dom";
 
 const Container = styled.div`
   margin-bottom: 40px;
@@ -42,30 +43,20 @@ const Title = styled.div`
 `;
 
 const Movies = () => {
+  const movies = useSelector(selectMovies);
+
   return (
     <Container>
       <Title>Recommended for You</Title>
       <Content>
-        <Wrap>
-          <a href="/detail">
-            <img alt="one" src={imageOne}></img>
-          </a>
-        </Wrap>
-        <Wrap>
-          <a href="/detail">
-            <img alt="one" src={imageOne}></img>
-          </a>
-        </Wrap>
-        <Wrap>
-          <a href="/detail">
-            <img alt="one" src={imageOne}></img>
-          </a>
-        </Wrap>
-        <Wrap>
-          <a href="/detail">
-            <img alt="one" src={imageOne}></img>
-          </a>
-        </Wrap>
+        {movies &&
+          movies.map((movie) => (
+            <Wrap key={movie.id}>
+              <Link to={`/detail/${movie.id}`}>
+                <img alt={movie.title} src={movie.cardImg}></img>
+              </Link>
+            </Wrap>
+          ))}
       </Content>
     </Container>
   );
