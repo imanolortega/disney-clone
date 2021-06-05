@@ -2,7 +2,6 @@ import React, { useEffect } from "react";
 import styled from "styled-components";
 import {
   selectUserName,
-  selectUserPhoto,
   setSignOut,
   setUserLogin,
 } from "../features/user/userSlice";
@@ -74,15 +73,6 @@ const NavMenu = styled.div`
   }
 `;
 
-const UserImg = styled.div`
-  img {
-    width: 48px;
-    height: 48px;
-    border-radius: 50%;
-    cursor: pointer;
-  }
-`;
-
 const Login = styled.div`
   border: 1px solid #f9f9f9;
   padding: 8px 16px;
@@ -109,7 +99,6 @@ const Header = () => {
   const dispatch = useDispatch();
   const history = useHistory();
   const userName = useSelector(selectUserName);
-  const userPhoto = useSelector(selectUserPhoto);
 
   useEffect(() => {
     auth.onAuthStateChanged(async (user) => {
@@ -122,6 +111,8 @@ const Header = () => {
           })
         );
         history.push("/");
+      } else {
+        history.push("/login");
       }
     });
   }, []);
@@ -129,7 +120,7 @@ const Header = () => {
   const signIn = () => {
     auth.signInWithPopup(provider).then((result) => {
       let user = result.user;
-      console.log(user);
+
       dispatch(
         setUserLogin({
           name: user.displayName,
@@ -144,7 +135,9 @@ const Header = () => {
   const signOut = () => {
     auth.signOut().then(() => {
       dispatch(setSignOut);
+      console.log(setSignOut);
       history.push("/login");
+      window.location.reload();
     });
   };
 
@@ -166,23 +159,23 @@ const Header = () => {
               <img alt="home-icon" src={home}></img>
               <span>HOME</span>
             </a>
-            <a href="/">
+            <a href="/#">
               <img alt="search-icon" src={search}></img>
               <span>SEARCH</span>
             </a>
-            <a href="/">
+            <a href="/#">
               <img alt="watchlist-icon" src={watchList}></img>
               <span>WATCHLIST</span>
             </a>
-            <a href="/">
+            <a href="/#">
               <img alt="originals-icon" src={originals}></img>
               <span>ORIGINALS</span>
             </a>
-            <a href="/">
+            <a href="/#">
               <img alt="movie-icon" src={movie}></img>
               <span>MOVIES</span>
             </a>
-            <a href="/">
+            <a href="/#">
               <img alt="series-icon" src={series}></img>
               <span>SERIES</span>
             </a>
